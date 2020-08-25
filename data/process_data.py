@@ -21,10 +21,25 @@ def load_data(messages_filepath, categories_filepath):
     categories = pd.read_csv(categories_filepath)
 
     #Merge dataframes
-    df = pd.merge(messages, categories, on='id')
+    df = messages.merge(categories, on = 'id') #pd.merge(messages, categories, on='id')
+
+    print(df.head())
+    print(df['categories'].head())
+
+    return df
 
 
 def clean_data(df):
+    '''
+    This function cleans the data for processing
+
+    Parameters:
+    df: a dataframe containing the data to be cleaned
+
+    Returns:
+    df: the dataframe containing the cleaned data
+    '''
+
     categories = df['categories'].str.split(';',expand=True)
 
     # select the first row of the categories dataframe
@@ -40,11 +55,11 @@ def clean_data(df):
     categories.set_axis(colnames, axis='columns', inplace=True)
 
     for column in categories:
-    # set each value to be the last character of the string
-    categories[column] = categories[column].str.replace(r'[^\d.]+', '')
+        # set each value to be the last character of the string
+        categories[column] = categories[column].str.replace(r'[^\d.]+','')
 
-    # convert column from string to numeric
-    categories[column] = categories[column].astype(int)
+        # convert column from string to numeric
+        categories[column] = categories[column].astype(int)
 
     # drop the original categories column from `df`
     df = df.drop(columns=['categories'])
@@ -55,9 +70,22 @@ def clean_data(df):
     # drop duplicates
     df = df.drop_duplicates()
 
+    return df
+
 
 def save_data(df, database_filename):
-    engine = create_engine(database_filename)
+    '''
+    This function saves the data to a SQL db
+
+    Parameters:
+    df: a dataframe containing the data to be save_data
+    database_filename: the location of the SQL db
+
+    Returns:
+    None
+    '''
+
+    engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('Messages', engine, index=False)
 
 
