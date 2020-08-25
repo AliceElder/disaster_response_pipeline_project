@@ -23,8 +23,8 @@ def load_data(messages_filepath, categories_filepath):
     #Merge dataframes
     df = messages.merge(categories, on = 'id') #pd.merge(messages, categories, on='id')
 
-    print(df.head())
-    print(df['categories'].head())
+    #print(df.head())
+    #print(df['categories'].head())
 
     return df
 
@@ -58,17 +58,32 @@ def clean_data(df):
         # set each value to be the last character of the string
         categories[column] = categories[column].str.replace(r'[^\d.]+','')
 
+        # replace any 2s in the dataset with 1s
+        categories[column] = categories[column].astype('str').str.replace('2', '1')
+
         # convert column from string to numeric
         categories[column] = categories[column].astype(int)
 
-    # drop the original categories column from `df`
+    # drop related column as it does not contain any useful data
+    categories = categories.drop(columns=['related'])
+
+    # drop rows where all the values are 0 or nan
+    categories = categories[(categories.T != 0).any()]
+    categories = categories.dropna()
+
+    # again, drop columns where all the values are now the same (i.e. the col has a std of 0)
+    categories = categories.drop(categories.std()[(categories.std() == 0)].index, axis=1)
+
+    # drop the original categories column from df
     df = df.drop(columns=['categories'])
 
     # concatenate the original dataframe with the new `categories` dataframe
-    df = pd.concat([df, categories],axis=1)
+    df = pd.concat([df, categories],axis=1,join='inner')
 
     # drop duplicates
     df = df.drop_duplicates()
+
+    print(df.head())
 
     return df
 
@@ -78,7 +93,7 @@ def save_data(df, database_filename):
     This function saves the data to a SQL db
 
     Parameters:
-    df: a dataframe containing the data to be save_data
+    df: a dataframe containing the data to be saved
     database_filename: the location of the SQL db
 
     Returns:
@@ -86,7 +101,8 @@ def save_data(df, database_filename):
     '''
 
     engine = create_engine('sqlite:///{}'.format(database_filename))
-    df.to_sql('Messages', engine, index=False)
+    df.to_sql('Messages', engine, index=False, if_exists='replace')
+    engine.dispose()
 
 
 def main():
