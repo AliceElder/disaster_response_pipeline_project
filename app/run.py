@@ -8,7 +8,7 @@ from nltk.tokenize import word_tokenize
 
 from flask import Flask
 from flask import render_template, request, jsonify
-from plotly.graph_objs import Bar
+from plotly.graph_objs import Bar, Pie
 #from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
@@ -33,36 +33,50 @@ df = pd.read_sql_table('Messages', engine)
 # load model
 model = joblib.load("../models/classifier.pkl")
 
-
 # index webpage displays cool visuals and receives user input text for model
 @app.route('/')
 @app.route('/index')
 def index():
 
     # extract data needed for visuals
-    # TODO: Below is an example - modify to extract data for your own visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
-
+    
+    df_topic = df[['aid_related','infrastructure_related','weather_related']]
+    topic_counts = df_topic.sum()
+    topic_names = ['Aid','Infrastructure','Weather']
+    
     # create visuals
-    # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
-                Bar(
-                    x=genre_names,
-                    y=genre_counts
+                Pie(
+                    labels=genre_names,
+                    values=genre_counts,
+                    marker_line_color='rgb(8,48,107)',
+                    marker_line_width=1.5, 
+                    
                 )
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
-                'yaxis': {
-                    'title': "Count"
-                },
-                'xaxis': {
-                    'title': "Genre"
-                }
+                'title': 'Source of Messages'
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    y=topic_names,
+                    x=topic_counts,
+                    orientation="h",
+                    marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
+                    marker_line_width=1.5, 
+                    opacity=0.6
+                )
+            ],
+
+            'layout': {
+                'title': 'Topics Mentioned in Messages',
             }
         }
     ]
