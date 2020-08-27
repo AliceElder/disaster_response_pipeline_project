@@ -21,10 +21,7 @@ def load_data(messages_filepath, categories_filepath):
     categories = pd.read_csv(categories_filepath)
 
     #Merge dataframes
-    df = messages.merge(categories, on = 'id') #pd.merge(messages, categories, on='id')
-
-    #print(df.head())
-    #print(df['categories'].head())
+    df = messages.merge(categories, on = 'id')
 
     return df
 
@@ -71,7 +68,7 @@ def clean_data(df):
     categories = categories[(categories.T != 0).any()]
     categories = categories.dropna()
 
-    # again, drop columns where all the values are now the same (i.e. the col has a std of 0)
+    # drop columns where all the values are now the same (i.e. the col has a std of 0)
     categories = categories.drop(categories.std()[(categories.std() == 0)].index, axis=1)
 
     # drop the original categories column from df
