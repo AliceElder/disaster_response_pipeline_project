@@ -77,8 +77,8 @@ The following libraries were used:
 
 
 ### Screenshots
-![Overview of dashboard](../app/screenshots/overview.png)
-![Example of classification](../app/screenshots/example_classification.png)
+![Overview of dashboard](../master/app/screenshots/overview.PNG)
+![Example of classification](../master/app/screenshots/example_classification.PNG)
 
 
 ### Suggestions for Future Improvements
