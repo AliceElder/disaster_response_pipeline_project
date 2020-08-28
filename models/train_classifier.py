@@ -23,6 +23,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.svm import LinearSVC
 from sklearn.multioutput import MultiOutputClassifier
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.model_selection import StratifiedShuffleSplit
 
 def load_data(database_filepath):
     '''
@@ -85,7 +86,7 @@ def build_model():
     None
 
     Returns:
-    pipeline: model object
+    cv: model object
     '''
 
     #pipeline = Pipeline([
@@ -105,7 +106,13 @@ def build_model():
         ('clf', MultiOutputClassifier(AdaBoostClassifier()))
     ])
 
-    return pipeline
+    parameters = [
+        {'features__text_pipeline__vect__ngram_range': [(1, 2)],
+         'clf__estimator__n_estimators': [100]}]
+
+    cv = GridSearchCV(pipeline, param_grid=parameters,cv=3,n_jobs=1,verbose=5)
+
+    return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
@@ -150,7 +157,12 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2,stratify=Y.iloc[:,1])
+        #X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2,stratify=Y.iloc[:,1])
+        sss = StratifiedShuffleSplit(test_size=0.2)
+        sss.get_n_splits(X, Y)
+        for train_index, test_index in sss.split(X, Y.iloc[:,1]):
+            X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+            Y_train, Y_test = Y.iloc[train_index], Y.iloc[test_index]
 
         print('Building model...')
         model = build_model()
