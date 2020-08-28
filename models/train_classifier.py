@@ -6,10 +6,11 @@ import pickle
 import re
 
 import nltk
-nltk.download(['punkt', 'wordnet', 'stopwords'])
+nltk.download(['punkt', 'wordnet', 'stopwords', 'averaged_perceptron_tagger'])
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
+from starting_verb_extractor import StartingVerbExtractor
 
 from sklearn.metrics import confusion_matrix, precision_score, recall_score
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
@@ -21,7 +22,7 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import LinearSVC
 from sklearn.multioutput import MultiOutputClassifier
-
+from sklearn.base import BaseEstimator, TransformerMixin
 
 def load_data(database_filepath):
     '''
@@ -71,11 +72,10 @@ def tokenize(text):
     clean_tokens = []
     for tok in tokens:
         if tok not in stop_words:
-            clean_tok = lemmatizer.lemmatize(tok).lower().strip()
+            clean_tok = lemmatizer.lemmatize(tok).strip()
             clean_tokens.append(clean_tok)
 
     return clean_tokens
-
 
 def build_model():
     '''
@@ -88,9 +88,20 @@ def build_model():
     pipeline: model object
     '''
 
+    #pipeline = Pipeline([
+    #    ('vect', CountVectorizer(tokenizer=tokenize)),
+    #    ('tfidf', TfidfTransformer()),
+    #    ('clf', MultiOutputClassifier(AdaBoostClassifier()))
+    #])
+
     pipeline = Pipeline([
-        ('vect', CountVectorizer(tokenizer=tokenize)),
-        ('tfidf', TfidfTransformer()),
+        ('features', FeatureUnion([
+            ('text_pipeline', Pipeline([
+                ('vect', CountVectorizer(tokenizer=tokenize)),
+                ('tfidf', TfidfTransformer())
+            ])),
+            ('starting_verb', StartingVerbExtractor())
+        ])),
         ('clf', MultiOutputClassifier(AdaBoostClassifier()))
     ])
 
@@ -139,7 +150,7 @@ def main():
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2,stratify=Y.iloc[:,1])
 
         print('Building model...')
         model = build_model()
