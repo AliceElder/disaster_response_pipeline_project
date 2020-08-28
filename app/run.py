@@ -2,6 +2,7 @@ import json
 import plotly
 import pandas as pd
 import joblib
+import sys
 
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -46,6 +47,13 @@ def index():
     topic_counts = df_topic.sum()
     topic_names = ['Aid','Infrastructure','Weather']
     
+    # create counts
+    total_messages = df['message'].count()
+    total_requests = df['request'].sum()
+    percent_requests = "{}% of total messages".format(round(((total_requests/total_messages)*100),1))
+    total_offers = df['offer'].sum()
+    percent_offers = "{}% of total messages".format(round(((total_offers/total_messages)*100),1))
+    
     # create visuals
     graphs = [
         {
@@ -60,7 +68,7 @@ def index():
             ],
 
             'layout': {
-                'title': 'Source of Messages'
+                'title': '<b>Source of Messages</b>'
             }
         },
         {
@@ -76,7 +84,7 @@ def index():
             ],
 
             'layout': {
-                'title': 'Topics Mentioned in Messages',
+                'title': '<b>Topics Mentioned in Messages</b>',
             }
         }
     ]
@@ -86,7 +94,7 @@ def index():
     graphJSON = json.dumps(graphs, cls=plotly.utils.PlotlyJSONEncoder)
 
     # render web page with plotly graphs
-    return render_template('master.html', ids=ids, graphJSON=graphJSON)
+    return render_template('master.html', ids=ids, graphJSON=graphJSON, total_messages=total_messages, total_requests=total_requests, percent_requests=percent_requests, total_offers=total_offers, percent_offers=percent_offers)
 
 
 # web page that handles user query and displays model results

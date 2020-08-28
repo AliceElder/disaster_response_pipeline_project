@@ -21,7 +21,6 @@ from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
 from sklearn.svm import LinearSVC
 from sklearn.multioutput import MultiOutputClassifier
-#from sklearn.neighbors import KNeighborsClassifier
 
 
 def load_data(database_filepath):
@@ -36,10 +35,12 @@ def load_data(database_filepath):
     Y: the values in the target columns (predictive variable)
     category_names: the names of the categorical columns
     '''
+    # Connect to db
     engine = create_engine('sqlite:///{}'.format(database_filepath))
     df = pd.read_sql_table('Messages',con=engine)
     engine.dispose()
 
+    # Store values
     X = df['message']
     y = df[df.columns[4:]]
     categories = y.columns.tolist()
@@ -60,13 +61,13 @@ def tokenize(text):
     clean_tokens: the cleaned text
     '''
 
-    #Strip punctuation and convert to lower case
+    # Strip punctuation and convert to lower case
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
 
+    # Split into tokens and clean
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
     stop_words = set(stopwords.words('english'))
-
     clean_tokens = []
     for tok in tokens:
         if tok not in stop_words:
@@ -86,7 +87,6 @@ def build_model():
     Returns:
     pipeline: model object
     '''
-    #clf = AdaBoostClassifier()
 
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -112,9 +112,6 @@ def evaluate_model(model, X_test, Y_test, category_names):
     '''
 
     y_pred = model.predict(X_test)
-    #print(y_pred)
-    #print(Y_test.head())
-    #labels = np.unique(y_pred)
     confusion_mat = confusion_matrix(Y_test.values.argmax(axis=1), y_pred.argmax(axis=1), labels=[0,1])
     accuracy = (y_pred == Y_test).mean()
     print("Confusion Matrix:\n", confusion_mat)

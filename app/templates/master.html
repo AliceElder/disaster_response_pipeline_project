@@ -18,7 +18,7 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/">Disaster Response Project</a>
+            <a class="navbar-brand" href="/" style="color:white;font-weight: bold">Disaster Response Project</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
@@ -58,6 +58,36 @@
             <h1 class="text-center">Overview of Training Dataset</h1>
         </div>
 		
+		<!-- top tiles -->
+		<div class="row row-cols-2" style="vertical-align: middle;">
+			<div class="col-sm-4" >
+				<div class="panel-body" style="border: 1px solid teal;text-align: center;">
+					<h4 style="font-weight: bold;">Messages Containing Requests</h4>
+					<p style="font-size: 150%;">{{total_requests}}</p>
+					<p>{{percent_requests}}</p>
+				</div>
+			</div>
+			
+			<div class="col-sm-4">
+				<div class="panel-body" style="border: 1px solid teal;text-align: center;">
+					<br/>
+					<h4 style="font-weight: bold;">Total Messages</h4>
+					<h4 style="font-size: 180%;">{{total_messages}}</h4>
+					<br/>
+				</div>
+			</div>
+		  
+			<div class="col-sm-4">
+				<div class="panel-body" style="border: 1px solid teal;text-align: center;">
+					<h4 style="font-weight: bold;">Messages Containing Offers</h4>
+					<p style="font-size: 150%;">{{total_offers}}</p>
+					<p>{{percent_offers}}</p>
+				</div>
+			</div>
+		  
+		</div>
+        <!-- /top tiles -->
+		
 		<!--side-by-side charts-->       
 		<div class="row row-cols-2">
 			<div class="col-sm-5">
@@ -72,13 +102,14 @@
 				</div>
 			</div>
 		</div>
+		<!-- /side-by-side tiles -->
     {% endblock %}
 
 
 </div>
 
 <script type="text/javascript">
-    const graphs = {{graphJSON | safe}};
+	const graphs = {{graphJSON | safe}};
     const ids = {{ids | safe}};
     for(let i in graphs) {
         Plotly.plot(ids[i], graphs[i].data, graphs[i].layout);
