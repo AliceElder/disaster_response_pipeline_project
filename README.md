@@ -12,21 +12,24 @@ The project is split into 3 sections:
 
 #### Best Estimators
 A number of estimators were tried, and the following were the most successful:
-- CountVectorizer:
-- TfidfTransformer:
+- CountVectorizer: convert a collection of text documents to a matrix of token counts
+- TfidfTransformer: transform a count matrix to a normalized tf or tf-idf representation
 - StartingVerbExtractor: a custom-built class that extracts the first verb from a sentence
-- AdaBoostClassifier: a multi-output classifier
+- AdaBoostClassifier: a meta-estimator that begins by fitting a classifier on the original dataset and then fits additional copies of the classifier on the same dataset but where the weights of incorrectly classified instances are adjusted such that subsequent classifiers focus more on difficult cases
 
 #### Best Parameters
 A grid search was performed to find the best parameters. The following parameters were the most successful:
 | Parameter | Optimal Value |
 |:---------:|:-------------:|
-|           |               |
+| Ngram Range | (1,2) |
+| Number of Estimators | 100 |
 
 #### Accuracy
+The accuracy of the final model is as follows:
 | Precision | Recall | F1-Score |
 |:---------:|:------:|:--------:|
-| 0.78      | 0.60   | 0.67     |
+| 0.79      | 0.69   | 0.70     |
+
 
 ### Files
 This project is structured as follows:
@@ -54,15 +57,17 @@ This project is structured as follows:
 
 ### Libraries
 The following libraries were used:
+- sys
+- sqlalchemy
 - pandas
-- numpy
+- pickle
+- re
+- nltk
+- sklearn
+- pandas
 - json
 - plotly
-- joblib
-- sys
-- nltk
 - flask
-- sqlalchemy
 
 
 ### Instructions to run the project:
@@ -82,13 +87,14 @@ The following libraries were used:
 
 
 ### Suggestions for Future Improvements
-- Several of the columns had very few data points. The accuracy of the model could be improved by collecting more data, in particular for these features:
-    - Offers: only 0.3% of fields had a value of 1
-- There may be more optimal paramers; GridSearch took an extremely long time to run for more combinations of parameters. 
+- Several of the columns had very few data points. The accuracy of the model could be improved by collecting more data, e.g. the 'Offers' feature had only 0.3% of fields with a value of 1.
+- There may be more optimal paramers; GridSearch took an extremely long time to run for more combinations of parameters. With more time and resources other estimators and parameters could be trialled.
+- This model was based on downloaded csv files. For a more future-proof solution an API could be used to pull the data.
 
 
 ### Acknowledgements
-Thanks to Udacity for providing the files and framework for this project.
+Thanks to Udacity for providing the original files and framework for this project.
+Thanks to Figure Eight for collecting the data.
 
 #### Data Sources Used
 The following data sources are used in this project:
