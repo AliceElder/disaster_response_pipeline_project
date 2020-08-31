@@ -43,18 +43,18 @@ def index():
     # extract data needed for visuals
     genre_counts = df.groupby('genre').count()['message']
     genre_names = list(genre_counts.index)
-    
+
     df_topic = df[['aid_related','infrastructure_related','weather_related']]
     topic_counts = df_topic.sum()
     topic_names = ['Aid','Infrastructure','Weather']
-    
+
     # create counts
     total_messages = df['message'].count()
     total_requests = df['request'].sum()
     percent_requests = "{}% of total messages".format(round(((total_requests/total_messages)*100),1))
     total_offers = df['offer'].sum()
     percent_offers = "{}% of total messages".format(round(((total_offers/total_messages)*100),1))
-    
+
     # create visuals
     graphs = [
         {
@@ -63,8 +63,8 @@ def index():
                     labels=genre_names,
                     values=genre_counts,
                     marker_line_color='rgb(8,48,107)',
-                    marker_line_width=1.5, 
-                    
+                    marker_line_width=1.5,
+
                 )
             ],
 
@@ -79,7 +79,7 @@ def index():
                     x=topic_counts,
                     orientation="h",
                     marker_color='rgb(158,202,225)', marker_line_color='rgb(8,48,107)',
-                    marker_line_width=1.5, 
+                    marker_line_width=1.5,
                     opacity=0.6
                 )
             ],

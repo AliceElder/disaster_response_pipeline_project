@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 import nltk
 import re
 nltk.download(['punkt', 'wordnet', 'stopwords', 'averaged_perceptron_tagger'])
@@ -35,6 +34,7 @@ def tokenize(text):
     return clean_tokens
 
 class StartingVerbExtractor(BaseEstimator, TransformerMixin):
+    ''' This class is used to find the first verb in a sentence'''
 
     def starting_verb(self, text):
         sentence_list = nltk.sent_tokenize(text)

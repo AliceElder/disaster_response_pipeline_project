@@ -1,7 +1,6 @@
 import sys
 from sqlalchemy import create_engine
 import pandas as pd
-import numpy as np
 import pickle
 import re
 
@@ -12,17 +11,14 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 from starting_verb_extractor import StartingVerbExtractor
 
-from sklearn.metrics import confusion_matrix, precision_score, recall_score
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import confusion_matrix
+from sklearn.ensemble import AdaBoostClassifier
 from sklearn.pipeline import Pipeline, FeatureUnion
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
-from sklearn.svm import LinearSVC
 from sklearn.multioutput import MultiOutputClassifier
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import StratifiedShuffleSplit
 
 def load_data(database_filepath):
@@ -80,21 +76,16 @@ def tokenize(text):
 
 def build_model():
     '''
-    This function creates a machine learning pipeline
+    This function creates and optimises a machine learning model
 
     Parameters:
     None
 
     Returns:
-    cv: model object
+    cv: ML model
     '''
 
-    #pipeline = Pipeline([
-    #    ('vect', CountVectorizer(tokenizer=tokenize)),
-    #    ('tfidf', TfidfTransformer()),
-    #    ('clf', MultiOutputClassifier(AdaBoostClassifier()))
-    #])
-
+    # Create a pipeline estimator
     pipeline = Pipeline([
         ('features', FeatureUnion([
             ('text_pipeline', Pipeline([
@@ -106,6 +97,7 @@ def build_model():
         ('clf', MultiOutputClassifier(AdaBoostClassifier()))
     ])
 
+    # Refine model using GridSearch with more optimal params
     parameters = [
         {'features__text_pipeline__vect__ngram_range': [(1, 2)],
          'clf__estimator__n_estimators': [100]}]
@@ -121,14 +113,15 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
     Parameters:
     model: the model to be evaluated
-    X_test: the test set df
-    Y_test: the test classifications df
-    category_names: the list of categoy names
+    X_test: the test set
+    Y_test: the test classifications
+    category_names: the list of category names
 
     Returns:
     None
     '''
 
+    # Perform and output evaluations of the model
     y_pred = model.predict(X_test)
     confusion_mat = confusion_matrix(Y_test.values.argmax(axis=1), y_pred.argmax(axis=1), labels=[0,1])
     accuracy = (y_pred == Y_test).mean()
